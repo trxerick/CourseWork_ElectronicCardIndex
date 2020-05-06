@@ -1,15 +1,6 @@
 #include "../includesH/list.h"
 
-carHead *init_head(carHead *head)
-{
-    if((head = malloc(sizeof(carHead))) != NULL){
-        head->count = 0;
-        head->first = NULL;
-        head->last = NULL;
-    }
-
-    return head;
-}
+// ------ Main list functions ------ //
 
 void add_first(carHead *head , carNode *node)
 {
@@ -23,17 +14,159 @@ void add_first(carHead *head , carNode *node)
 void print_list(carHead *head)
 {
     CLS;
-    carNode *tmp;
+    carNode *p;
     if(head){
-        tmp = head->first;
-        while(tmp != NULL){
-            printf("%s\n", tmp->data->name);
-            tmp = tmp->next;
+        if(head->count == 0) puts("The card-index is empty!");
+            else {
+            if((p = head->first) != NULL){
+                printf("\n|--------------------------------------------------------------------------------------------------|\n");
+                printf("|%3s |%21s |%11s |%5s |%5s |%11s |%8s |%9s |%9s|\n" ,"Id", "Name" , "Company" , "Year" , "Price" , "Weight" ,
+                "Mileage" , "Min speed" , "Max speed");
+                printf("|--------------------------------------------------------------------------------------------------|\n");
+                while(p != NULL){
+                    printf("|%3d |%21s |%11s |%5d |%5d |%11.3f |%8.3f |%9d |%9d|\n" , p->id ,p->data->name , p->data->company ,
+                    p->data->year, p->data->price , p->data->weight , 
+                    p->data->mileage, p->data->speed[0] , p->data->speed[1]);
+                    p = p->next;
+                }
+            }
         }
     }
     puts("\nPress any key to come back to main menu");
     getchar();
     getchar();
+}
+
+void add_new_card(carHead *head)
+{
+    carNode *new_node , *tmp;
+    CLS;
+
+    puts("Fill information about new card:\n");
+    new_node = get_node();
+
+    if(head->count == 0){ // If adding first node
+        new_node->id = 1;
+        head->first = new_node;
+        head->last = new_node;
+    } else { // If adding not first node
+        tmp = head->first;
+        while(tmp != NULL){
+            if(tmp == head->last){
+                head->last = new_node;
+                new_node->id = tmp->id + 1;
+                new_node->prev = tmp;
+                tmp->next = new_node;
+                tmp = NULL; 
+            } else tmp = tmp->next;
+        }
+    }
+
+    head->count++;
+}
+
+void delete_card(carHead *head)
+{
+    carNode *tmp;
+    int number = -1;
+    
+    CLS;
+
+    if(head->count == 0){puts("The card-index is empty! Press any key to return to main menu"); getchar();getchar(); return;}
+
+    while((number != 0) && (head->count != 0)){
+        print_cur_list(head);
+        puts("\nChoose number of card to delete. Or enter 0 to come back to main menu:\n");
+
+        scanf("%d" , &number);
+        while((number > head->count) || (number < 0)){
+            puts("Error! There is no card with this number! Try again or enter 0 to comeback to main menu\n");
+            scanf("%d" , &number);
+        }
+    
+        tmp = head->first;
+
+        while(tmp != NULL){
+            if(tmp->id == number){
+                if(head->count == 1){ // If single element is going to be deleted
+                    head->first = NULL;
+                    head->last = NULL;
+                } else {
+                    if(tmp == head->first){ // If first element is going to be deleted
+                        head->first = tmp->next;
+                        head->first->prev = NULL;
+                        dec_id(head, head->first);
+                    } else if (tmp == head->last){ // If last element is going to be deleted
+                        head->last->prev->next = NULL;
+                        head->last = tmp->prev;
+                    } else { // If not last and not first element is going to be deleted
+                        tmp->prev->next = tmp->next;
+                        tmp->next->prev = tmp->prev;
+                        dec_id(head,tmp);
+                    }
+                }
+                delete_card_data(tmp);
+                tmp = NULL;
+                head->count--;
+            } else tmp = tmp->next;
+        }
+    }
+}
+
+
+// ------Secondary list functions------ //
+
+carHead *init_head(carHead *head)
+{
+    if((head = malloc(sizeof(carHead))) != NULL){
+        head->count = 0;
+        head->first = NULL;
+        head->last = NULL;
+    }
+    return head;
+}
+
+void delete_card_data(carNode *node)
+{
+    free(node->data->name);
+    free(node->data->company);
+    free(node->data);
+    free(node);
+}
+
+void dec_id(carHead *head , carNode *cur_node)
+{
+    carNode *tmp;
+
+    tmp = cur_node;
+
+    while(tmp != NULL){
+        tmp->id--;
+        tmp = tmp->next;
+    }
+}
+
+void print_cur_list(carHead *head)
+{
+    CLS;
+    carNode *p;
+    if(head){
+        if(head->count == 0) puts("The card-index is empty!");
+            else {
+            if((p = head->first) != NULL){
+                printf("\n|--------------------------------------------------------------------------------------------------|\n");
+                printf("|%3s |%21s |%11s |%5s |%5s |%11s |%8s |%9s |%9s|\n" ,"Id", "Name" , "Company" , "Year" , "Price" , "Weight" ,
+                "Mileage" , "Min speed" , "Max speed");
+                printf("|--------------------------------------------------------------------------------------------------|\n");
+                while(p != NULL){
+                    printf("|%3d |%21s |%11s |%5d |%5d |%11.3f |%8.3f |%9d |%9d|\n" , p->id ,p->data->name , p->data->company ,
+                    p->data->year, p->data->price , p->data->weight , 
+                    p->data->mileage, p->data->speed[0] , p->data->speed[1]);
+                    p = p->next;
+                }
+            }
+        }
+    }
 }
 
 void clear_list(carHead *head)

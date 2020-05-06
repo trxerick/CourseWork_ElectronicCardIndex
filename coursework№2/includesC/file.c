@@ -71,10 +71,47 @@ void fill_from_file(carHead *head , carNode* node , carNode *cur_node)
 {
     if(head && node && cur_node){
         cur_node->next = node;
-        node->id = cur_node->id++;
         node->prev= cur_node;
     }
     head->count++;
+}
+
+carNode *get_node()
+{
+    carNode *new_node = NULL;
+    if((new_node = (carNode*)malloc(sizeof(carNode))) != NULL){
+        if((new_node->data = (car*)malloc(sizeof(car))) != NULL){
+            new_node->data->company = (char*)malloc(MAXLENGTH*sizeof(char));
+            new_node->data->name = (char*)malloc(MAXLENGTH*sizeof(char));
+            if(new_node->data->company && new_node->data->name){
+                getchar();
+                puts("Enter the name(Max length is 512 chars!):");
+                fgets(new_node->data->name , MAXLENGTH , stdin);
+                new_node->data->name[strlen(new_node->data->name) - 1] = '\0';
+                puts("Enter the company(Max length is 512 chars!):");
+                fgets(new_node->data->company , MAXLENGTH , stdin);
+                new_node->data->company[strlen(new_node->data->company) - 1] = '\0';
+                puts("Enter the year of production:");
+                scanf("%d" , &new_node->data->year);
+                puts("Enter the price:");
+                scanf("%d" , &new_node->data->price);
+                puts("Enter the weight:");
+                scanf("%f" , &new_node->data->weight);
+                puts("Enter the mileage");
+                scanf("%f" , &new_node->data->mileage);
+                puts("Enter min and max speed");
+                scanf("%d %d" , &new_node->data->speed[0] , &new_node->data->speed[1]);
+                getchar();
+            } else {
+                new_node = NULL;
+            }
+        } else {
+            new_node = NULL;
+        }
+        new_node->next = NULL;
+        new_node->prev = NULL;
+    }
+    return new_node;
 }
 
 char **split(char **text , char *string , char *sep)
