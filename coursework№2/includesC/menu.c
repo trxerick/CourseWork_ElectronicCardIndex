@@ -48,13 +48,9 @@ void sub_menu_search(carHead *head)
     puts("2 - Car's company");
     puts("3 - Car's year of production");
     puts("4 - Car's price");
-    puts("5 - Cars's weight");
-    puts("6 - Cars's mileage");
-    puts("7 - Cars's min speed in 5 seconds");
-    puts("8 - Cars's max speed in 5 seconds");
     puts("0 - Go back to main menu");
     scanf("%d" , &choice);
-    if(choice != 0) search_car(head , choice);
+    if(choice != 0) search_card(head , choice);
 }
 
 void sub_menu_sort()
