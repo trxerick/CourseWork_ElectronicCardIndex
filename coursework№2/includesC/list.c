@@ -113,6 +113,13 @@ void delete_card(carHead *head)
     }
 }
 
+void search_car(carHead *head , int key)
+{
+    void (*search_func[6]) (carHead *head) = {search_card_name , search_card_company, search_card_year};
+
+    if(key == 1) search_func[key-1];
+}
+
 
 // ------Secondary list functions------ //
 
@@ -124,6 +131,154 @@ carHead *init_head(carHead *head)
         head->last = NULL;
     }
     return head;
+}
+
+void search_card_name(carHead *head)
+{
+    int count = 0;
+    char str[MAXLENGTH];
+    carNode *tmp;
+    
+    tmp = head->first;
+        
+    puts("Enter the name of car to find:");
+    getchar();
+    fgets(str,MAXLENGTH,stdin);
+    str[strlen(str) - 1] = '\0';
+    
+    while(tmp != NULL){
+        if((strcmp(tmp->data->name, str)) == 0){
+            count++;
+            puts(tmp->data->name);
+            tmp = NULL;
+        } else tmp = tmp->next;
+    }
+
+    if(count == 0) puts("There are no such cards!");
+    puts("Press any key to comeback to main menu");
+    getchar();
+}
+
+void search_card_company(carHead *head)
+{
+    int count = 0;
+    char str[MAXLENGTH];
+    carNode *tmp;
+    
+    tmp = head->first;
+        
+    puts("Enter the company of car to find:");
+    getchar();
+    fgets(str,MAXLENGTH,stdin);
+    str[strlen(str) - 1] = '\0';
+    
+    while(tmp != NULL){
+        if((strcmp(tmp->data->company, str)) == 0){
+            count++;
+            puts(tmp->data->company);
+            tmp = NULL;
+        } else tmp = tmp->next;
+    }
+
+    if(count == 0) puts("\nThere are no such cards!\n");
+    puts("Press any key to comeback to main menu");
+    getchar();
+}
+
+void search_card_year(carHead *head)
+{
+    int count = 0;
+    int param;
+    carNode *tmp;
+    
+    tmp = head->first;
+        
+    puts("Enter the year of production to find:");
+    scanf("%d" , &param);
+    
+    while(tmp != NULL){
+        if(tmp->data->year == param){
+            count++;
+            puts(tmp->data->name);
+            tmp = NULL;
+        } else tmp = tmp->next;
+    }
+
+    if(count == 0) puts("\nThere are no such cards!\n");
+    puts("Press any key to comeback to main menu");
+    getchar();
+}
+
+void search_card_price(carHead *head)
+{
+    int count = 0;
+    int param;
+    carNode *tmp;
+    
+    tmp = head->first;
+        
+    puts("Enter the price of car to find:");
+    scanf("%d" , &param);
+    
+    while(tmp != NULL){
+        if(tmp->data->price == param){
+            count++;
+            puts(tmp->data->name);
+            tmp = NULL;
+        } else tmp = tmp->next;
+    }
+
+    if(count == 0) puts("\nThere are no such cards!\n");
+    puts("Press any key to comeback to main menu");
+    getchar();
+}
+
+void search_card_weight(carHead *head)
+{
+    int count = 0;
+    float param;
+    carNode *tmp;
+    
+    tmp = head->first;
+        
+    puts("Enter the price of car to find:");
+    scanf("%f" , &param);
+    
+    while(tmp != NULL){
+        if(tmp->data->weight == param){
+            count++;
+            puts(tmp->data->name);
+            tmp = NULL;
+        } else tmp = tmp->next;
+    }
+
+    if(count == 0) puts("\nThere are no such cards!\n");
+    puts("Press any key to comeback to main menu");
+    getchar();
+}
+
+void search_card_mileage(carHead *head)
+{
+    int count = 0;
+    float param;
+    carNode *tmp;
+    
+    tmp = head->first;
+        
+    puts("Enter the price of car to find:");
+    scanf("%f" , &param);
+    
+    while(tmp != NULL){
+        if(tmp->data->mileage == param){
+            count++;
+            puts(tmp->data->name);
+            tmp = NULL;
+        } else tmp = tmp->next;
+    }
+
+    if(count == 0) puts("\nThere are no such cards!\n");
+    puts("Press any key to comeback to main menu");
+    getchar();
 }
 
 void delete_card_data(carNode *node)

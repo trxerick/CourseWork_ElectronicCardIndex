@@ -30,7 +30,7 @@ void menu(carHead *head)
         else if(choice == 1) print_list(head);
         else if(choice == 2) add_new_card(head);
         else if(choice == 3) delete_card(head);
-        else if(choice == 4) sub_menu_search();
+        else if(choice == 4) sub_menu_search(head);
         else if(choice == 5) sub_menu_sort();
     }
     puts("\nAll changes has been saved in cart.csv file\n\nPress any key to exit");
@@ -39,9 +39,9 @@ void menu(carHead *head)
     CLS;
 }
 
-void sub_menu_search()
+void sub_menu_search(carHead *head)
 {
-    short choice;
+    int choice;
     CLS;
     puts("Enter the parameter to search:");
     puts("1 - Car's name");
@@ -53,7 +53,8 @@ void sub_menu_search()
     puts("7 - Cars's min speed in 5 seconds");
     puts("8 - Cars's max speed in 5 seconds");
     puts("0 - Go back to main menu");
-    scanf("%hi" , &choice);
+    scanf("%d" , &choice);
+    if(choice != 0) search_car(head , choice);
 }
 
 void sub_menu_sort()
