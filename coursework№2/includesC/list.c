@@ -119,6 +119,22 @@ void search_card(carHead *head , int key)
     search_func[key - 1](head);
 }
 
+void edit_card(carHead *head , int id, int key)
+{
+    carNode *tmp;
+    
+    tmp = head->first;
+
+    while(tmp != NULL){
+        if(tmp->id == id){
+            puts("You are going to update this card:\n");
+            print_node(tmp);
+            edit_field(head,tmp,key);
+            tmp = NULL;
+        } else tmp = tmp->next;
+    }
+}
+
 
 // ------Secondary list functions------ //
 
@@ -151,7 +167,7 @@ void search_card_name(carHead *head)
     for(i = 0; i < head->count; i++){
         if((strcmp(tmp->data->name, str)) == 0){
             count++;
-            puts(tmp->data->name);
+            print_node(tmp);
         }
         tmp = tmp->next;
     }
@@ -180,7 +196,7 @@ void search_card_company(carHead *head)
     for(i = 0; i < head->count; i++){
         if((strcmp(tmp->data->company, str)) == 0){
             count++;
-            puts(tmp->data->name);
+            print_node(tmp);
         }
         tmp = tmp->next;
     }
@@ -205,7 +221,7 @@ void search_card_year(carHead *head)
     for(i = 0; i < head->count; i++){
         if(tmp->data->year == param){
             count++;
-            puts(tmp->data->name);
+            print_node(tmp);
         }
         tmp = tmp->next;
     }
@@ -231,7 +247,7 @@ void search_card_price(carHead *head)
     for(i = 0; i < head->count; i++){
         if(tmp->data->price == param){
             count++;
-            puts(tmp->data->name);
+            print_node(tmp);
         }
         tmp = tmp->next;
     }
@@ -239,6 +255,53 @@ void search_card_price(carHead *head)
     if(count == 0) puts("\nThere are no such cards!\n");
     puts("\nPress any key to comeback to main menu");
     getchar();
+}
+
+void edit_field(carHead *head, carNode *node, int key)
+{
+    char new_data[21];
+    int new_data_int;
+    float new_data_float;
+
+    if(key == 1){
+        puts("\nEnter new name (Max length 21 symbols):");
+        getchar();
+        fgets(new_data, 21 ,stdin);
+        new_data[strlen(new_data) - 1] = '\0';
+        strcpy(node->data->name, new_data);
+    } else if (key == 2){
+        puts("\nEnter new company (Max length 11 symbols):");
+        getchar();
+        fgets(new_data, 11 ,stdin);
+        new_data[strlen(new_data) - 1] = '\0';
+        strcpy(node->data->company, new_data);
+    } else if(key == 3){
+        puts("\nEnter new year:");
+        scanf("%d" , &new_data_int);
+        node->data->year = new_data_int;
+    } else if(key == 4){
+        puts("\nEnter new price:");
+        scanf("%d" , &new_data_int);
+        node->data->price = new_data_int;
+    } else if(key == 5){
+        puts("\nEnter new weight:");
+        scanf("%f" , &new_data_float);
+        node->data->weight = new_data_float;
+    } else if (key == 6){
+        puts("\nEnter new MIleage:");
+        scanf("%f" , &new_data_float);
+        node->data->mileage = new_data_float;
+    } else if (key == 7){
+        puts("\nEnter new min speed:");
+        scanf("%d" , &new_data_int);
+        node->data->speed[0] = new_data_int;
+    } else if(key == 8){
+        puts("\nEnter new max speed:");
+        scanf("%d" , &new_data_int);
+        node->data->speed[1] = new_data_int;
+    }
+    puts("\nThe updated card:\n");
+    print_node(node);
 }
 
 void delete_card_data(carNode *node)
@@ -282,6 +345,17 @@ void print_cur_list(carHead *head)
             }
         }
     }
+}
+
+void print_node(carNode *node)
+{
+    printf("\n|--------------------------------------------------------------------------------------------------|\n");
+    printf("|%3s |%21s |%11s |%5s |%5s |%11s |%8s |%9s |%9s|\n" ,"Id", "Name" , "Company" , "Year" , "Price" , "Weight" ,
+    "Mileage" , "Min speed" , "Max speed");
+    printf("|--------------------------------------------------------------------------------------------------|\n");
+    printf("|%3d |%21s |%11s |%5d |%5d |%11.3f |%8.3f |%9d |%9d|\n" , node->id ,node->data->name , node->data->company ,
+                    node->data->year, node->data->price , node->data->weight , 
+                    node->data->mileage, node->data->speed[0] , node->data->speed[1]);
 }
 
 void clear_list(carHead *head)

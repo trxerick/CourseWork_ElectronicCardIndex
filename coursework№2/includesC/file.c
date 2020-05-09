@@ -32,6 +32,22 @@ void read_file(FILE *fp , carHead *head)
     }
 }
 
+void save_file(FILE *fp, carHead *head)
+{
+    carNode *tmp;
+    int i;
+
+    fp = fopen("cart.csv" , "w");
+    tmp = head->first;
+    for(i = 0; i < head->count; i++){
+        fprintf(fp , "%s;%s;%d;%d;%.3f;%.3f;%d %d\n", tmp->data->name, tmp->data->company, tmp->data->year, tmp->data->price
+        ,tmp->data->weight, tmp->data->mileage, tmp->data->speed[0], tmp->data->speed[1]);
+        tmp = tmp->next;
+    }
+
+    fclose(fp);
+}
+
 carNode *arr_to_node(char **arr, int id)
 {
     carNode *res;

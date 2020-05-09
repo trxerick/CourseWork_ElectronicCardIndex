@@ -12,10 +12,9 @@ int main()
         say_hello();
         head = init_head(head);
         read_file(fp , head);
-        menu(head);
-
-        clear_list(head);
         fclose(fp);
+        menu(head,fp);
+        clear_list(head);
     } else {puts("Error while openning file!");}
     
     return 0;
