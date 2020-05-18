@@ -1,6 +1,6 @@
 #include "../includesH/list.h"
 
-// ------ Main list functions ------ //
+// ------ Addition and deleting functions ------ //
 
 void add_first(carHead *head , carNode *node)
 {
@@ -9,32 +9,6 @@ void add_first(carHead *head , carNode *node)
         head->last = node;
         head->count++;
     }
-}
-
-void print_list(carHead *head)
-{
-    CLS;
-    carNode *p;
-    if(head){
-        if(head->count == 0) puts("The card-index is empty!");
-            else {
-            if((p = head->first) != NULL){
-                printf("\n|--------------------------------------------------------------------------------------------------|\n");
-                printf("|%3s |%21s |%11s |%5s |%5s |%11s |%8s |%9s |%9s|\n" ,"Id", "Name" , "Company" , "Year" , "Price" , "Weight" ,
-                "Mileage" , "Min speed" , "Max speed");
-                printf("|--------------------------------------------------------------------------------------------------|\n");
-                while(p != NULL){
-                    printf("|%3d |%21s |%11s |%5d |%5d |%11.3f |%8.3f |%9d |%9d|\n" , p->id ,p->data->name , p->data->company ,
-                    p->data->year, p->data->price , p->data->weight , 
-                    p->data->mileage, p->data->speed[0] , p->data->speed[1]);
-                    p = p->next;
-                }
-            }
-        }
-    }
-    puts("\nPress any key to come back to main menu");
-    getchar();
-    getchar();
 }
 
 void add_new_card(carHead *head)
@@ -113,11 +87,75 @@ void delete_card(carHead *head)
     }
 }
 
+/* End of adding and deleting functions */
+
+/* Searching functions */
+
 void search_card(carHead *head , int key)
 {
-    void (*search_func[4]) (carHead *head) = {search_card_name , search_card_company, search_card_year, search_card_price};
-    search_func[key - 1](head);
+    void (*search_func[2]) (carHead *head,int key) = {search_card_str , search_card_int};
+    if((key == 1) || (key == 2)) search_func[0](head,key);
+    else search_func[1](head,key);
 }
+
+void search_card_str(carHead *head , int key)
+{
+    int count = 0, i;
+    char str[MAXLENGTH];
+    carNode *tmp;
+    
+    tmp = head->first;
+        
+    puts("\nEnter the value of car to find:");
+    getchar();
+    fgets(str,MAXLENGTH,stdin);
+    str[strlen(str) - 1] = '\0';
+
+    CLS;
+    puts("The results: ");
+    
+    for(i = 0; i < head->count; i++){
+        if((strcmp(get_data_str(tmp->data,key), str)) == 0){
+            count++;
+            print_node(tmp);
+        }
+        tmp = tmp->next;
+    }
+
+    if(count == 0) puts("\nThere are no such cards!\n");
+    puts("\nPress any key to comeback to main menu");
+    getchar();
+}
+
+void search_card_int(carHead *head , int key)
+{
+    int count = 0,param,i;
+    carNode *tmp;
+    
+    tmp = head->first;
+        
+    puts("\nEnter the year of production to find:");
+    scanf("%d" , &param);
+
+    CLS;
+    puts("\nThe results:");
+    
+    for(i = 0; i < head->count; i++){
+        if(get_data_int(tmp->data,key) == param){
+            count++;
+            print_node(tmp);
+        }
+        tmp = tmp->next;
+    }
+    getchar();
+    if(count == 0) puts("\nThere are no such cards!\n");
+    puts("\nPress any key to comeback to main menu");
+    getchar();
+}
+
+/* End of searching functions */
+
+/* Editing functions */
 
 void edit_card(carHead *head , int id, int key)
 {
@@ -133,128 +171,6 @@ void edit_card(carHead *head , int id, int key)
             tmp = NULL;
         } else tmp = tmp->next;
     }
-}
-
-
-// ------Secondary list functions------ //
-
-carHead *init_head(carHead *head)
-{
-    if((head = malloc(sizeof(carHead))) != NULL){
-        head->count = 0;
-        head->first = NULL;
-        head->last = NULL;
-    }
-    return head;
-}
-
-void search_card_name(carHead *head)
-{
-    int count = 0, i;
-    char str[MAXLENGTH];
-    carNode *tmp;
-    
-    tmp = head->first;
-        
-    puts("\nEnter the name of car to find:");
-    getchar();
-    fgets(str,MAXLENGTH,stdin);
-    str[strlen(str) - 1] = '\0';
-
-    CLS;
-    puts("The results: ");
-    
-    for(i = 0; i < head->count; i++){
-        if((strcmp(tmp->data->name, str)) == 0){
-            count++;
-            print_node(tmp);
-        }
-        tmp = tmp->next;
-    }
-
-    if(count == 0) puts("\nThere are no such cards!\n");
-    puts("\nPress any key to comeback to main menu");
-    getchar();
-}
-
-void search_card_company(carHead *head)
-{
-    int count = 0, i;
-    char str[MAXLENGTH];
-    carNode *tmp;
-    
-    tmp = head->first;
-        
-    puts("\nEnter the company of car to find:");
-    getchar();
-    fgets(str,MAXLENGTH,stdin);
-    str[strlen(str) - 1] = '\0';
-
-    CLS;
-    puts("\nThe results:");
-    
-    for(i = 0; i < head->count; i++){
-        if((strcmp(tmp->data->company, str)) == 0){
-            count++;
-            print_node(tmp);
-        }
-        tmp = tmp->next;
-    }
-    if(count == 0) puts("\nThere are no such cards!\n");
-    puts("\nPress any key to comeback to main menu");
-    getchar();
-}
-
-void search_card_year(carHead *head)
-{
-    int count = 0,param,i;
-    carNode *tmp;
-    
-    tmp = head->first;
-        
-    puts("\nEnter the year of production to find:");
-    scanf("%d" , &param);
-
-    CLS;
-    puts("\nThe results:");
-    
-    for(i = 0; i < head->count; i++){
-        if(tmp->data->year == param){
-            count++;
-            print_node(tmp);
-        }
-        tmp = tmp->next;
-    }
-    getchar();
-    if(count == 0) puts("\nThere are no such cards!\n");
-    puts("\nPress any key to comeback to main menu");
-    getchar();
-}
-
-void search_card_price(carHead *head)
-{
-    int count = 0, param, i;
-    carNode *tmp;
-    
-    tmp = head->first;
-        
-    puts("\nEnter the price of car to find:");
-    scanf("%d" , &param);
-
-    CLS;
-    puts("\nThe results: ");
-    
-    for(i = 0; i < head->count; i++){
-        if(tmp->data->price == param){
-            count++;
-            print_node(tmp);
-        }
-        tmp = tmp->next;
-    }
-    getchar();
-    if(count == 0) puts("\nThere are no such cards!\n");
-    puts("\nPress any key to comeback to main menu");
-    getchar();
 }
 
 void edit_field(carHead *head, carNode *node, int key)
@@ -288,7 +204,7 @@ void edit_field(carHead *head, carNode *node, int key)
         scanf("%f" , &new_data_float);
         node->data->weight = new_data_float;
     } else if (key == 6){
-        puts("\nEnter new MIleage:");
+        puts("\nEnter new Mileage:");
         scanf("%f" , &new_data_float);
         node->data->mileage = new_data_float;
     } else if (key == 7){
@@ -304,24 +220,125 @@ void edit_field(carHead *head, carNode *node, int key)
     print_node(node);
 }
 
-void delete_card_data(carNode *node)
+/*End of editing functions */
+
+/* Sorting functions */
+
+void sort_card(carHead *head , int key)
 {
-    free(node->data->name);
-    free(node->data->company);
-    free(node->data);
-    free(node);
+    void (*sort_func[2]) (carHead *head, int key) = {sort_number, sort_alpha};
+    if((key != 1) && (key != 2)) sort_func[0](head,key);
+    else sort_func[1](head,key);
 }
 
-void dec_id(carHead *head , carNode *cur_node)
+void swap_datas(car **data1, car **data2)
 {
-    carNode *tmp;
+    car *tmp = *data1;
+    *data1 = *data2;
+    *data2 = tmp;
+}
 
-    tmp = cur_node;
+void sort_number(carHead *head, int key)
+{
+    int i,j;
+    short choice;
+    carNode *cur, *indx;
+    
+    CLS;
 
-    while(tmp != NULL){
-        tmp->id--;
-        tmp = tmp->next;
+    puts("Enter sort preference:");
+    puts("\n1 - for Sort Descending");
+    puts("2 - for Sort Ascending");
+    puts("0 - Return to main menu");
+
+    if(head->first == NULL) return;
+
+    cur = head->first;
+
+    scanf("%hi" , &choice);
+    if(choice == 2){
+        for(cur = head->first;cur->next != NULL; cur = cur->next){
+            for(indx = cur->next; indx != NULL; indx = indx->next){
+                if(get_data_int(cur->data,key) > get_data_int(indx->data,key)){
+                    swap_datas(&cur->data,&indx->data);
+                }
+            }
+        }
+    } else if(choice == 1){
+        for(cur = head->first;cur->next != NULL; cur = cur->next){
+            for(indx = cur->next; indx != NULL; indx = indx->next){
+                if(get_data_int(cur->data,key) < get_data_int(indx->data,key)){
+                    swap_datas(&cur->data,&indx->data);
+                }
+            }
+        }
     }
+}
+
+void sort_alpha(carHead *head, int key)
+{
+    int i,j;
+    short choice;
+    carNode *cur, *indx;
+
+    CLS;
+
+    puts("Enter sort preference:");
+    puts("\n1 - for Sort Descending");
+    puts("2 - for Sort Ascending");
+    puts("0 - Return to main menu");
+
+    if(head->first == NULL) return;
+
+    cur = head->first;
+
+    scanf("%hi" , &choice);
+    if(choice == 2){
+        for(cur = head->first;cur->next != NULL; cur = cur->next){
+            for(indx = cur->next; indx != NULL; indx = indx->next){
+                if(strcmp(get_data_str(cur->data,key),get_data_str(indx->data, key)) > 0){
+                    swap_datas(&cur->data,&indx->data);
+                }
+            }
+        }
+    } else if(choice == 1){
+        for(cur = head->first;cur->next != NULL; cur = cur->next){
+            for(indx = cur->next; indx != NULL; indx = indx->next){
+                if(strcmp(get_data_str(cur->data,key),get_data_str(indx->data, key)) < 0){
+                    swap_datas(&cur->data,&indx->data);
+                }
+            }
+        }
+    }
+}
+
+/* End of sorting functions */
+
+/* Printing functions */
+void print_list(carHead *head)
+{
+    CLS;
+    carNode *p;
+    if(head){
+        if(head->count == 0) puts("The card-index is empty!");
+            else {
+            if((p = head->first) != NULL){
+                printf("\n|--------------------------------------------------------------------------------------------------|\n");
+                printf("|%3s |%21s |%11s |%5s |%5s |%11s |%8s |%9s |%9s|\n" ,"Id", "Name" , "Company" , "Year" , "Price" , "Weight" ,
+                "Mileage" , "Min speed" , "Max speed");
+                printf("|--------------------------------------------------------------------------------------------------|\n");
+                while(p != NULL){
+                    printf("|%3d |%21s |%11s |%5d |%5d |%11.3f |%8.3f |%9d |%9d|\n" , p->id ,p->data->name , p->data->company ,
+                    p->data->year, p->data->price , p->data->weight , 
+                    p->data->mileage, p->data->speed[0] , p->data->speed[1]);
+                    p = p->next;
+                }
+            }
+        }
+    }
+    puts("\nPress any key to come back to main menu");
+    getchar();
+    getchar();
 }
 
 void print_cur_list(carHead *head)
@@ -358,6 +375,56 @@ void print_node(carNode *node)
                     node->data->mileage, node->data->speed[0] , node->data->speed[1]);
 }
 
+/* End of printing functions */
+
+/* Secondary functions */
+
+carHead *init_head(carHead *head)
+{
+    if((head = malloc(sizeof(carHead))) != NULL){
+        head->count = 0;
+        head->first = NULL;
+        head->last = NULL;
+    }
+    return head;
+}
+
+int get_data_int(car *data, int key)
+{
+    if(key == 3) return data->year;
+    else if(key == 4) return data->price;
+    else if(key == 5) return data->speed[0];
+    else if(key == 6) return data->speed[1];
+}
+
+char* get_data_str(car *data, int key)
+{
+    if(key == 1) return data->name;
+    else if (key == 2) return data->company;
+}
+
+
+void delete_card_data(carNode *node)
+{
+    free(node->data->name);
+    free(node->data->company);
+    free(node->data);
+    free(node);
+}
+
+void dec_id(carHead *head , carNode *cur_node)
+{
+    carNode *tmp;
+
+    tmp = cur_node;
+
+    while(tmp != NULL){
+        tmp->id--;
+        tmp = tmp->next;
+    }
+}
+
+
 void clear_list(carHead *head)
 {
     carNode *tmp, *tmp1;
@@ -375,3 +442,5 @@ void clear_list(carHead *head)
         head = NULL;
     }
 }
+
+/* End of secondary functions */
