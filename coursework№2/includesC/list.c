@@ -13,29 +13,49 @@ void add_first(carHead *head , carNode *node)
 
 void add_new_card(carHead *head)
 {
+    int uid;
     carNode *new_node , *tmp;
     CLS;
 
     puts("Fill information about new card:\n");
     new_node = get_node();
 
-    if(head->count == 0){ // If adding first node
-        new_node->id = 1;
+    if(head->count == 0) { // If the card-index is empty
         head->first = new_node;
-        head->last = new_node;
-    } else { // If adding not first node
-        tmp = head->first;
-        while(tmp != NULL){
-            if(tmp == head->last){
-                head->last = new_node;
-                new_node->id = tmp->id + 1;
-                new_node->prev = tmp;
-                tmp->next = new_node;
-                tmp = NULL; 
-            } else tmp = tmp->next;
-        }
+        head->last  = new_node;
+        new_node->id = 1;
+        head->count++;    
+        return;
     }
 
+    puts("Enter the id after which you want to insert new card:");
+    uid = safe_scanf();
+
+    while((uid <= 0) || (uid > head->count)){
+        puts("Error! There is no this id in list! Try again:\n\n");
+        uid = safe_scanf();
+    }
+
+    if((uid > 0) && (uid <= head->count)){ // If id is correct
+        tmp = head->first;
+
+        while(tmp->id != uid){ // Reaching id
+            tmp = tmp->next;
+        }
+
+        if(tmp->next == NULL){ // If it is the last element
+            tmp->next = new_node;
+            head->last = new_node;
+            new_node->prev = tmp;
+            new_node->id = head->count + 1;
+        } else { // If it is not the last one
+            new_node->next = tmp->next;
+            new_node->id = tmp->id;
+            tmp->next = new_node;
+            new_node->prev = tmp;
+            inc_id(head,new_node);
+        }
+    }
     head->count++;
 }
 
@@ -52,10 +72,11 @@ void delete_card(carHead *head)
         print_cur_list(head);
         puts("\nChoose number of card to delete. Or enter 0 to come back to main menu:\n");
 
-        scanf("%d" , &number);
+        number = safe_scanf();
         while((number > head->count) || (number < 0)){
             puts("Error! There is no card with this number! Try again or enter 0 to comeback to main menu\n");
-            scanf("%d" , &number);
+            getchar();
+            number = safe_scanf();
         }
     
         tmp = head->first;
@@ -89,70 +110,159 @@ void delete_card(carHead *head)
 
 /* End of adding and deleting functions */
 
-/* Searching functions */
+/* Searching functions and query functions */
 
-void search_card(carHead *head , int key)
+int check_borders(int min_bord, int max_bord, int val)
 {
-    void (*search_func[2]) (carHead *head,int key) = {search_card_str , search_card_int};
-    if((key == 1) || (key == 2)) search_func[0](head,key);
-    else search_func[1](head,key);
+    int res = 0;
+    if((val >= min_bord) && (val <= max_bord)) res = 1; // The value belongs to the gap
+
+    return res;
 }
 
-void search_card_str(carHead *head , int key)
+int compare_card_and_query(carNode *node, query *user_query)
+{
+    int res = 1,name = 0, company = 0, year = 0, price = 0, min_speed = 0, max_speed = 0;
+    
+    /* Checking what fields are going to be searched */
+    if((strcmp(user_query->name, "None\0")) != 0) name = 1;
+    if((strcmp(user_query->company, "None\0"))!=0 ) company = 1;
+    if(user_query->low_price != -1) price = 1;
+    if(user_query->low_year != -1) year = 1;
+    if(user_query->low_speed_max != -1) max_speed = 1;
+    if(user_query->low_speed_min != -1) min_speed = 1;
+
+    /* Compare query and card  */
+    if((name == 1) && (strcmp(user_query->name, node->data->name) != 0)) res = 0;
+    if((company == 1) && (strcmp(user_query->company, node->data->company) != 0)) res = 0;
+    if((price == 1) && (check_borders(user_query->low_price, user_query->max_price, node->data->price) != 1)) res = 0; 
+    if((year == 1) && (check_borders(user_query->low_year, user_query->max_year, node->data->year) != 1)) res = 0;
+    if((max_speed == 1) && (check_borders(user_query->low_speed_max, user_query->max_speed_max, node->data->speed[1]) != 1)) res = 0;
+    if((min_speed == 1) && (check_borders(user_query->low_speed_min, user_query->max_speed_min, node->data->speed[0]) != 1)) res = 0;
+
+    return res;
+}
+
+void search_card(carHead *head)
 {
     int count = 0, i;
     char str[MAXLENGTH];
     carNode *tmp;
+    query *user_query;
+
+    /* Initialise query */
+    user_query = customize_search(head);
+    getchar();
     
     tmp = head->first;
-        
-    puts("\nEnter the value of car to find:");
-    getchar();
-    fgets(str,MAXLENGTH,stdin);
-    str[strlen(str) - 1] = '\0';
 
     CLS;
+
     puts("The results: ");
     
+    /* Searching */
     for(i = 0; i < head->count; i++){
-        if((strcmp(get_data_str(tmp->data,key), str)) == 0){
-            count++;
+        if((compare_card_and_query(tmp, user_query)) == 1){
             print_node(tmp);
+            puts("");
+            count++;
         }
         tmp = tmp->next;
     }
+
+    clear_query(user_query); // Clearing memory that was allocated for query
 
     if(count == 0) puts("\nThere are no such cards!\n");
     puts("\nPress any key to comeback to main menu");
     getchar();
 }
 
-void search_card_int(carHead *head , int key)
+query *init_query(query *cur_query)
 {
-    int count = 0,param,i;
-    carNode *tmp;
-    
-    tmp = head->first;
-        
-    puts("\nEnter the year of production to find:");
-    scanf("%d" , &param);
+    cur_query = malloc(sizeof(query));
+    cur_query->name = malloc(MAXLENGTH * sizeof(char));
+    cur_query->company = malloc(MAXLENGTH * sizeof(char));
 
-    CLS;
-    puts("\nThe results:");
-    
-    for(i = 0; i < head->count; i++){
-        if(get_data_int(tmp->data,key) == param){
-            count++;
-            print_node(tmp);
-        }
-        tmp = tmp->next;
-    }
-    getchar();
-    if(count == 0) puts("\nThere are no such cards!\n");
-    puts("\nPress any key to comeback to main menu");
-    getchar();
+    strcpy(cur_query->name, "None\0");
+    strcpy(cur_query->company,"None\0");
+    cur_query->low_year = -1;
+    cur_query->max_year = -1;
+    cur_query->low_price = -1;
+    cur_query->max_price = -1;
+    cur_query->low_speed_min = -1;
+    cur_query->max_speed_min = -1;
+    cur_query->low_speed_max = -1;
+    cur_query->max_speed_max = -1;
+
+    return cur_query;
 }
 
+int check_query_values(int val1, int val2) // Need to check queries
+{
+    int is_Error = 0;
+
+    if(val2 < val1) { is_Error = 1; puts("\nError! The low value is bigger than the max");getchar();getchar();}
+    else if ((val2 < 0) || (val1 < 0)) { is_Error = 1; puts("\nError! Value cannot be negative!"); getchar();getchar();}
+
+    return is_Error;
+}
+
+query *customize_search(carHead *head)
+{
+    short choice = 0;
+    query *user_query;
+    char data[MAXLENGTH];
+    int param1, param2;
+
+    user_query = init_query(user_query);
+
+    while(choice != 7){
+        CLS;
+        puts("Your searching parameters (-1 means None):\n");
+        print_query(user_query);
+
+        puts("\n1 - Enter name\n2 - Enter company\n3 - Enter year\n4 - Enter price\n5 - Enter max speed\n6 - Enter min speed\n7 - Start searching");
+        choice = safe_scanf();
+        if(choice == 1){
+            puts("\nEnter the value(Maximum is 20 symbols):");
+            getchar();
+            fgets(data,20,stdin);
+            data[strlen(data) - 1] = '\0';
+            strcpy(user_query->name, data);
+        } else if (choice == 2){
+            puts("\nEnter the value(Maximum is 17 symbols):");
+            getchar();
+            fgets(data,17,stdin);
+            data[strlen(data) - 1] = '\0';
+            strcpy(user_query->company, data);
+        } else if (choice == 3){
+            puts("Enter the low value and then max value:");
+            param1 = safe_scanf(); param2 = safe_scanf();
+            if((check_query_values(param1, param2)) != 1) {user_query->low_year = param1; user_query->max_year = param2;}
+        } else if (choice == 4){
+            puts("Enter the low value and then max value:");
+            param1 = safe_scanf(); param2 = safe_scanf();
+            if((check_query_values(param1, param2)) != 1) {user_query->low_price = param1; user_query->max_price = param2;}
+        } else if (choice == 5){
+            puts("Enter the low value and then max value:");
+            param1 = safe_scanf(); param2 = safe_scanf();
+            if((check_query_values(param1, param2)) != 1) {user_query->low_speed_max = param1; user_query->max_speed_max = param2;}
+        } else if (choice == 6){
+            puts("Enter the low value and then max value:");
+            param1 = safe_scanf(); param2 = safe_scanf();
+            if((check_query_values(param1, param2)) != 1) {user_query->low_speed_min = param1; user_query->max_speed_min = param2;}
+        } else if ((choice < 0) || (choice > 7)) puts("Error! Try again");
+    }
+
+    return user_query;
+}
+
+void clear_query(query *user_query)
+{
+    free(user_query->name);
+    free(user_query->company);
+    free(user_query);
+}
 /* End of searching functions */
 
 /* Editing functions */
@@ -184,12 +294,14 @@ void edit_field(carHead *head, carNode *node, int key)
         getchar();
         fgets(new_data, 21 ,stdin);
         new_data[strlen(new_data) - 1] = '\0';
+        node->data->name = realloc(node->data->name, (strlen(new_data)+1)*sizeof(char)); // Realloc memory for new data
         strcpy(node->data->name, new_data);
     } else if (key == 2){
         puts("\nEnter new company (Max length 11 symbols):");
         getchar();
         fgets(new_data, 11 ,stdin);
         new_data[strlen(new_data) - 1] = '\0';
+        node->data->company = realloc(node->data->company, (strlen(new_data)+1)*sizeof(char)); // Realloc memory for new data
         strcpy(node->data->company, new_data);
     } else if(key == 3){
         puts("\nEnter new year:");
@@ -255,7 +367,7 @@ void sort_number(carHead *head, int key)
 
     cur = head->first;
 
-    scanf("%hi" , &choice);
+    choice = safe_scanf();
     if(choice == 2){
         for(cur = head->first;cur->next != NULL; cur = cur->next){
             for(indx = cur->next; indx != NULL; indx = indx->next){
@@ -292,7 +404,7 @@ void sort_alpha(carHead *head, int key)
 
     cur = head->first;
 
-    scanf("%hi" , &choice);
+    choice = safe_scanf();
     if(choice == 2){
         for(cur = head->first;cur->next != NULL; cur = cur->next){
             for(indx = cur->next; indx != NULL; indx = indx->next){
@@ -336,6 +448,7 @@ void print_list(carHead *head)
             }
         }
     }
+
     puts("\nPress any key to come back to main menu");
     getchar();
     getchar();
@@ -373,6 +486,36 @@ void print_node(carNode *node)
     printf("|%3d |%21s |%11s |%5d |%5d |%11.3f |%8.3f |%9d |%9d|\n" , node->id ,node->data->name , node->data->company ,
                     node->data->year, node->data->price , node->data->weight , 
                     node->data->mileage, node->data->speed[0] , node->data->speed[1]);
+}
+
+void print_query(query *cur_query)
+{
+    puts("---------------------------");
+    printf("|Name:%20s|\n|Company:%17s|\n|Low year:%16d|\n|Max year:%16d|\n|Low price:%15d|\n|Max price:%15d|\n|Low speed max:%11d|\n|Max speed max:%11d|\n|Low speed min:%11d|\n|Max speed min:%11d|\n",
+    cur_query->name, cur_query->company,cur_query->low_year, cur_query->max_year, cur_query->low_price, cur_query->max_price,
+    cur_query->low_speed_max,cur_query->max_speed_max,cur_query->low_speed_min, cur_query->max_speed_min);
+    puts("---------------------------\n");
+}
+
+void print_best_cars(carHead *head)
+{
+    int i;
+    carNode *tmp;
+
+    CLS;
+
+    tmp = head->first;
+
+    for(i = 0; i < head->count; i++){
+        if((fabs(tmp->data->year + tmp->data->mileage)/tmp->data->price - 1) > __FLT_EPSILON__){
+            print_node(tmp);
+        }
+        tmp = tmp->next;
+    }   
+
+    puts("\nPress any key to come back to main menu");
+    getchar();
+    getchar();
 }
 
 /* End of printing functions */
@@ -420,6 +563,18 @@ void dec_id(carHead *head , carNode *cur_node)
 
     while(tmp != NULL){
         tmp->id--;
+        tmp = tmp->next;
+    }
+}
+
+void inc_id(carHead *head, carNode *cur_node)
+{
+    carNode *tmp;
+
+    tmp = cur_node;
+
+    while(tmp != NULL){
+        tmp->id++;
         tmp = tmp->next;
     }
 }

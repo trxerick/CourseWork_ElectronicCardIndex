@@ -166,6 +166,21 @@ char **split(char **text , char *string , char *sep)
     return text;
 }
 
+int safe_scanf()
+{
+    int chooce = -1;
+    char str[100];
+
+    scanf("%s", str);
+
+    while(sscanf(str, "%d", &chooce) != 1) {
+        printf("Incorrect input! Try again use only numbers!\n\n");
+        scanf("%s" , str);
+    }
+
+    return chooce;
+}
+
 void clear_array(char **arr, int count)
 {
     int i;

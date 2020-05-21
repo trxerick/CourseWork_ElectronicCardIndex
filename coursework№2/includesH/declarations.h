@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
+#include <limits.h>
+#include <math.h>
 
 #define MAXLENGTH 512
 
@@ -15,6 +18,7 @@
 typedef struct carlHead carHead;
 typedef struct carlNode carNode;
 typedef struct carStruct car;
+typedef struct queryStruct query;
 
 struct carStruct
 {
@@ -40,4 +44,18 @@ struct carlHead
     int count;
     carNode *first;
     carNode *last;
+};
+
+struct queryStruct
+{
+    char *name;
+    char *company;
+    int low_year;
+    int max_year;
+    int low_price;
+    int max_price;
+    int low_speed_max;
+    int max_speed_max;
+    int low_speed_min;
+    int max_speed_min;
 };

@@ -9,7 +9,6 @@ int main()
     carHead *head;
     
     if((fp = fopen("cart.csv" , "r")) != NULL){
-        say_hello();
         head = init_head(head);
         read_file(fp , head);
         fclose(fp);
