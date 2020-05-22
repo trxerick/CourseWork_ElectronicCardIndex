@@ -8,3 +8,4 @@ carNode *get_node(); // Function for reading data for new node from keyboard
 void save_file(FILE *fp, carHead *head); // Function for saving new data in file
 void fill_from_file(carHead *head , carNode *node , carNode *cur_node); // Function for adding elements from file to list
 int safe_scanf(); // Function for safe scanf
+float safe_scanf_f(); // Function for save scanf floats

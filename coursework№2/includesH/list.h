@@ -29,5 +29,7 @@ void clear_query(query *query); // Function for clearing memory that was allocat
 void print_query(); // Function for printing current query
 int check_query_values(int val1, int val2); // Function for checking values in queries
 void swap_datas(car **data1, car **data2);// Function for swapping two node`s data
+void swap_cards(carHead *head); // Function for checking conditions for swaping two cards
+carNode *find_node(carHead *head, int id); // Secondary function for searching node with given id
 carHead *init_head(carHead *head); // Function for initialising list
 void clear_list(carHead *head); // Function for clearing memory that was allocated for list

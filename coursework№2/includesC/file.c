@@ -108,15 +108,16 @@ carNode *get_node()
                 fgets(new_node->data->company , MAXLENGTH , stdin);
                 new_node->data->company[strlen(new_node->data->company) - 1] = '\0';
                 puts("Enter the year of production:");
-                scanf("%d" , &new_node->data->year);
+                new_node->data->year = safe_scanf();
                 puts("Enter the price:");
-                scanf("%d" , &new_node->data->price);
+                new_node->data->price = safe_scanf();
                 puts("Enter the weight:");
-                scanf("%f" , &new_node->data->weight);
+                new_node->data->weight = safe_scanf_f();
                 puts("Enter the mileage");
-                scanf("%f" , &new_node->data->mileage);
+                new_node->data->mileage = safe_scanf_f();
                 puts("Enter min and max speed");
-                scanf("%d %d" , &new_node->data->speed[0] , &new_node->data->speed[1]);
+                new_node->data->speed[0] = safe_scanf();
+                new_node->data->speed[1] = safe_scanf();
                 getchar();
             } else {
                 new_node = NULL;
@@ -176,6 +177,22 @@ int safe_scanf()
     while(sscanf(str, "%d", &chooce) != 1) {
         printf("Incorrect input! Try again use only numbers!\n\n");
         scanf("%s" , str);
+    }
+
+    return chooce;
+}
+
+float safe_scanf_f()
+{
+    float chooce;
+
+    char str[100];
+    
+    scanf("%s" , str);
+
+    while(sscanf(str, "%f", &chooce) != 1){
+       printf("Incorrect input! Try again use only numbers!\n\n");
+        scanf("%s" , str); 
     }
 
     return chooce;

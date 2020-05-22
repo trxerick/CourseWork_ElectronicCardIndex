@@ -139,6 +139,10 @@ int compare_card_and_query(carNode *node, query *user_query)
     if((year == 1) && (check_borders(user_query->low_year, user_query->max_year, node->data->year) != 1)) res = 0;
     if((max_speed == 1) && (check_borders(user_query->low_speed_max, user_query->max_speed_max, node->data->speed[1]) != 1)) res = 0;
     if((min_speed == 1) && (check_borders(user_query->low_speed_min, user_query->max_speed_min, node->data->speed[0]) != 1)) res = 0;
+    if(user_query->is_good != '-'){
+        if((user_query->is_good == 'Y') && (fabs(node->data->year + node->data->mileage)/node->data->price - 1) < __FLT_EPSILON__) res = 0;
+        else if((user_query->is_good == 'N') && (fabs(node->data->year + node->data->mileage)/node->data->price - 1) > __FLT_EPSILON__) res = 0;
+    }
 
     return res;
 }
@@ -183,6 +187,7 @@ query *init_query(query *cur_query)
     cur_query->name = malloc(MAXLENGTH * sizeof(char));
     cur_query->company = malloc(MAXLENGTH * sizeof(char));
 
+    cur_query->is_good = '-';
     strcpy(cur_query->name, "None\0");
     strcpy(cur_query->company,"None\0");
     cur_query->low_year = -1;
@@ -209,6 +214,7 @@ int check_query_values(int val1, int val2) // Need to check queries
 
 query *customize_search(carHead *head)
 {
+    char param3;
     short choice = 0;
     query *user_query;
     char data[MAXLENGTH];
@@ -216,12 +222,12 @@ query *customize_search(carHead *head)
 
     user_query = init_query(user_query);
 
-    while(choice != 7){
+    while(choice != 8){
         CLS;
         puts("Your searching parameters (-1 means None):\n");
         print_query(user_query);
 
-        puts("\n1 - Enter name\n2 - Enter company\n3 - Enter year\n4 - Enter price\n5 - Enter max speed\n6 - Enter min speed\n7 - Start searching");
+        puts("\n1 - Enter name\n2 - Enter company\n3 - Enter year\n4 - Enter price\n5 - Enter max speed\n6 - Enter min speed\n7 - is good\n8 - Start searching");
         choice = safe_scanf();
         if(choice == 1){
             puts("\nEnter the value(Maximum is 20 symbols):");
@@ -251,7 +257,14 @@ query *customize_search(carHead *head)
             puts("Enter the low value and then max value:");
             param1 = safe_scanf(); param2 = safe_scanf();
             if((check_query_values(param1, param2)) != 1) {user_query->low_speed_min = param1; user_query->max_speed_min = param2;}
-        } else if ((choice < 0) || (choice > 7)) puts("Error! Try again");
+        } else if (choice == 7){
+            puts("Enter Y or N (Y is good car and N is bad one)");
+            getchar();
+            scanf("%c", &param3);
+            if((param3 != 'Y') && (param3 != 'N')) puts("Error! It can be only Y or N");
+            else user_query->is_good = param3;
+        } 
+        else if ((choice < 0) || (choice > 8)) puts("Error! Try again");
     }
 
     return user_query;
@@ -426,6 +439,49 @@ void sort_alpha(carHead *head, int key)
 
 /* End of sorting functions */
 
+/* Swaping function */
+carNode *find_node(carHead *head, int id)
+{
+    carNode *tmp;
+
+    tmp = head->first;
+
+    while(tmp->id != id){
+        tmp = tmp->next;
+    }
+
+    return tmp;
+}
+
+void swap_cards(carHead *head)
+{
+    int id_1, id_2;
+    carNode *node_1 = NULL, *node_2 = NULL;
+
+    CLS;
+
+    if((head->count == 0) || (head->count == 1)){
+        puts("\nError! Theres is only one or less card in card-index! Press any key to return to main menu");
+        getchar();
+        getchar();
+        return;
+    } else {    
+        print_cur_list(head);
+        puts("\nEnter the first id and then the second one");
+        id_1 = safe_scanf();
+        id_2 = safe_scanf();
+        if(((id_1 >= 1) && (id_1 <= head->count)) && ((id_2 >= 1) && (id_2 <= head->count)) && (id_1 != id_2)){ // Check if ids is correct
+            
+            node_1 = find_node(head, id_1); // Searching the first node
+            node_2 = find_node(head, id_2); // Searching the second node
+
+            swap_datas(&node_1->data, &node_2->data); // Swaping two cards
+        } else {puts("Error! Press any key to return to main menu"); getchar();getchar();}
+    }
+}
+
+/* End of swaping functrions */
+
 /* Printing functions */
 void print_list(carHead *head)
 {
@@ -491,9 +547,9 @@ void print_node(carNode *node)
 void print_query(query *cur_query)
 {
     puts("---------------------------");
-    printf("|Name:%20s|\n|Company:%17s|\n|Low year:%16d|\n|Max year:%16d|\n|Low price:%15d|\n|Max price:%15d|\n|Low speed max:%11d|\n|Max speed max:%11d|\n|Low speed min:%11d|\n|Max speed min:%11d|\n",
+    printf("|Name:%20s|\n|Company:%17s|\n|Low year:%16d|\n|Max year:%16d|\n|Low price:%15d|\n|Max price:%15d|\n|Low speed max:%11d|\n|Max speed max:%11d|\n|Low speed min:%11d|\n|Max speed min:%11d|\n|Is good: %16c|\n",
     cur_query->name, cur_query->company,cur_query->low_year, cur_query->max_year, cur_query->low_price, cur_query->max_price,
-    cur_query->low_speed_max,cur_query->max_speed_max,cur_query->low_speed_min, cur_query->max_speed_min);
+    cur_query->low_speed_max,cur_query->max_speed_max,cur_query->low_speed_min, cur_query->max_speed_min, cur_query->is_good);
     puts("---------------------------\n");
 }
 

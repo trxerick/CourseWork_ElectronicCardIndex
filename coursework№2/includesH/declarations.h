@@ -48,6 +48,7 @@ struct carlHead
 
 struct queryStruct
 {
+    char is_good;
     char *name;
     char *company;
     int low_year;

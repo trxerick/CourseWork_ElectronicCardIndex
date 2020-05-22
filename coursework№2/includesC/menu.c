@@ -16,6 +16,7 @@ void say_hello()
 void menu(carHead *head , FILE *fp)
 {
     int choice = 1;
+    void (*menu_func[9])(carHead *head) = {print_reference,print_list,add_new_card,delete_card,sub_menu_search,sub_menu_sort,sub_menu_edit, swap_cards, print_secondary_table};
     while(choice != 9){
         CLS;
         say_hello();
@@ -27,19 +28,12 @@ void menu(carHead *head , FILE *fp)
         puts("4 - Find cards with parameters");
         puts("5 - Sort cards with parameters");
         puts("6 - Edit existing card");
-        puts("7 - Show best cars");
+        puts("7 - Swap two cards");
         puts("8 - Print Rating of cars");
         puts("9 - Exit and save card-index \n");
         choice = safe_scanf();
         if(choice == 0) print_reference();
-        else if(choice == 1) print_list(head);
-        else if(choice == 2) add_new_card(head);
-        else if(choice == 3) delete_card(head);
-        else if(choice == 4) sub_menu_search(head);
-        else if(choice == 5) sub_menu_sort(head);
-        else if(choice == 6) sub_menu_edit(head);
-        else if(choice == 7) print_best_cars(head);
-        else if(choice == 8) print_secondary_table(head);
+        else if (choice != 9) menu_func[choice](head);
     }
     save_file(fp,head);
     puts("\nAll changes has been saved in cart.csv file\n\nPress any key to exit");
@@ -103,11 +97,20 @@ void sub_menu_edit(carHead *head)
 void print_reference()
 {
     CLS;
+    puts("\nElectronic card-index\n");
+    puts("Author: Epifantsev Egor");
+    puts("Student of 9305 group");
     puts("\nReference:\n");
     puts("This is an electronic file cabinet designed to store cards with cars.");
     puts("Possible file cabinet manipulations can be viewed in the main menu.");
     puts("Each operation can be used several times."); 
-    puts("Enter numbers from 1 to 7 to interact with the menu.");
+    puts("Enter numbers from 1 to 8 to interact with the menu.");
+    puts("Program supports compound queries for searching. It means that you can personilise your query before searching.");
+    puts("If you start searching with empty query , you will get the whole card-index");
+    puts("Also there is secondary table in card-index that consists of rating of each car");
+    puts("You can watch this rating by choosing 8 in main menu");
+    puts("Y means that car is good for it`s price and N means that car is bad");
+    puts("Also you can search card via rating (by the secondary table)");
     puts("\n\nPress any key to return to main menu");
     getchar();
     getchar();
